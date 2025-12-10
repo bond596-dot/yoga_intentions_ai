@@ -26,6 +26,7 @@ export default function Home() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [continuousListening, setContinuousListening] = useState(false);
   const [isListening, setIsListening] = useState(false);
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -116,7 +117,7 @@ export default function Home() {
           id: `error-${Date.now()}`,
         },
       ]);
-      
+
       await speakText(errorMsg);
     } finally {
       setIsLoading(false);
@@ -126,7 +127,8 @@ export default function Home() {
   // Initialize Speech Recognition once on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const SpeechRecognition =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       if (SpeechRecognition) {
         const recognition = new SpeechRecognition();
         recognition.continuous = true;
@@ -255,7 +257,7 @@ export default function Home() {
         mediaRecorder.onstop = async () => {
           const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
           await transcribeAudio(audioBlob);
-          
+
           // In continuous mode, restart recording after transcription (unless speaking)
           if (continuousListening && !isSpeaking) {
             setTimeout(() => startRecording(), 100);
@@ -270,7 +272,7 @@ export default function Home() {
       // Initial setup - get the stream
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
-      
+
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
@@ -282,7 +284,7 @@ export default function Home() {
       mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
         await transcribeAudio(audioBlob);
-        
+
         // In continuous mode, restart recording after transcription (unless speaking)
         if (continuousListening && !isSpeaking) {
           setTimeout(() => startRecording(), 100);
@@ -491,7 +493,7 @@ export default function Home() {
           id: `error-${Date.now()}`,
         },
       ]);
-      
+
       // Also speak error message in continuous mode
       if (continuousListening) {
         await speakText(errorMsg);
@@ -507,23 +509,47 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
-      <div className="container mx-auto max-w-4xl px-3 py-8">
-        <div className="bg-white border-4 border-black">
+    <div
+      className="
+        min-h-screen 
+        bg-gradient-to-br 
+        from-slate-950 
+        via-slate-900 
+        to-emerald-900 
+        text-emerald-50 
+        flex 
+        justify-center 
+        px-4 
+        py-8
+        font-sans
+      "
+    >
+      <div className="container mx-auto max-w-3xl px-3 py-6">
+        <div className="rounded-3xl bg-slate-950/80 border border-emerald-800/50 shadow-xl shadow-black/40 backdrop-blur-md">
           <div className="h-[700px] flex flex-col">
-            <div className="p-3 bg-white border-b-4 border-black">
+            {/* HEADER */}
+            <div className="p-5 border-b border-emerald-800/40">
               <div className="flex justify-between items-center">
                 <div>
-                  <h1 className="text-3xl font-bold text-black" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
-                    AI POET CHAT
+                  <h1 className="text-3xl font-semibold text-emerald-50">
+                    Yoga Intention Studio
                   </h1>
-                  <p className="text-sm text-black mt-1" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
-                    Chat with Whomp, the French AI poet
+                  <p className="mt-2 text-sm text-emerald-100/80 max-w-xl">
+                    Ask for an intention to anchor your practice. You can request
+                    a theme like surrender, grounding, empowerment, or share how
+                    you’re feeling — I’ll offer a line to move with.
                   </p>
                 </div>
+
                 <div className="flex items-center space-x-3">
-                  <label className={`flex items-center space-x-2 ${isSpeaking ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
-                    <span className="text-xs text-black font-mono uppercase tracking-wider">Continuous Listen</span>
+                  <label
+                    className={`flex items-center space-x-2 ${
+                      isSpeaking ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                    }`}
+                  >
+                    <span className="text-[10px] tracking-widest text-emerald-100/80 font-mono uppercase">
+                      Continuous Listen
+                    </span>
                     <button
                       onClick={async () => {
                         if (isSpeaking) return;
@@ -545,27 +571,36 @@ export default function Home() {
                         }
                       }}
                       disabled={isSpeaking}
-                      className={`border-2 border-black px-3 py-1 text-xs font-mono transition-colors ${
-                        continuousListening ? 'bg-black text-white' : 'bg-white text-black'
-                      } ${isSpeaking ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-80'}`}
+                      className={`rounded-full border border-emerald-500 px-3 py-1 text-xs font-mono transition-colors ${
+                        continuousListening
+                          ? 'bg-emerald-500 text-slate-950'
+                          : 'bg-slate-900 text-emerald-100'
+                      } ${
+                        isSpeaking
+                          ? 'opacity-50 cursor-not-allowed'
+                          : 'hover:bg-emerald-400 hover:text-slate-950'
+                      }`}
                     >
                       {continuousListening ? 'ON' : 'OFF'}
                     </button>
                   </label>
+
                   {isListening && !isSpeaking && (
-                    <span className="text-xs text-black flex items-center space-x-1 border border-black px-2 py-1 font-mono">
+                    <span className="text-[10px] text-emerald-100/90 flex items-center space-x-1 border border-emerald-500/70 px-2 py-1 rounded-full font-mono bg-slate-900/80">
                       <Mic size={12} className="animate-pulse" />
                       <span>LISTENING</span>
                     </span>
                   )}
+
                   {isSpeaking && (
-                    <span className="text-xs text-white bg-black flex items-center space-x-1 border border-black px-2 py-1 font-mono">
+                    <span className="text-[10px] text-emerald-50 bg-emerald-600/90 flex items-center space-x-1 border border-emerald-400 px-2 py-1 rounded-full font-mono">
                       <Volume2 size={12} className="animate-pulse" />
                       <span>SPEAKING</span>
                     </span>
                   )}
+
                   {continuousListening && !isListening && !isSpeaking && (
-                    <span className="text-xs text-black border border-black px-2 py-1 font-mono">
+                    <span className="text-[10px] text-emerald-100/80 border border-emerald-500/60 px-2 py-1 rounded-full font-mono bg-slate-900/80">
                       PAUSED
                     </span>
                   )}
@@ -573,111 +608,138 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-3 space-y-4 bg-white">
-              {messages.slice(1).map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex items-start space-x-2 ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
-                  }`}
-                >
-                  {message.role === 'assistant' && (
-                    <div className="w-8 h-8 border-2 border-black bg-white flex items-center justify-center flex-shrink-0">
-                      <Bot size={18} className="text-black" />
-                    </div>
-                  )}
+            {/* MESSAGES */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/40">
+              {messages.slice(1).map((message) => {
+                const isUser = message.role === 'user';
+                const alignment = isUser ? 'justify-end' : 'justify-start';
+                const bubbleAlign = isUser ? 'items-end' : 'items-start';
+                const bubbleColors = isUser
+                  ? 'bg-emerald-700/90 text-emerald-50 border border-emerald-400/80'
+                  : 'bg-slate-900/90 text-emerald-50 border border-emerald-700/60';
 
+                return (
                   <div
-                    className={`flex flex-col max-w-[70%] ${
-                      message.role === 'user' ? 'items-end' : 'items-start'
-                    }`}
-                    style={{ fontFamily: '"Times New Roman", Times, serif' }}
+                    key={message.id}
+                    className={`flex items-start space-x-2 ${alignment}`}
                   >
-                    <div
-                      className={`border-2 border-black p-3 ${
-                        message.role === 'user'
-                          ? 'bg-black text-white'
-                          : 'bg-white text-black'
-                      }`}
-                    >
-                      <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.content}</p>
-                    </div>
-
                     {message.role === 'assistant' && (
-                      <button
-                        onClick={() => speakText(message.content)}
-                        className="mt-1 text-black hover:opacity-60 transition-opacity border border-black px-2 py-1 bg-white text-xs font-mono"
-                        aria-label="Text to speech"
-                      >
-                        <div className="flex items-center space-x-1">
-                          <Volume2 size={12} />
-                          <span>PLAY</span>
-                        </div>
-                      </button>
+                      <div className="w-8 h-8 rounded-full border border-emerald-500/70 bg-slate-900/90 flex items-center justify-center flex-shrink-0">
+                        <Bot size={18} className="text-emerald-200" />
+                      </div>
                     )}
 
-                    {message.timestamp && (
-                      <span className="text-xs text-black mt-1 font-mono">
-                        {new Date(message.timestamp).toLocaleTimeString()}
-                      </span>
+                    <div
+                      className={`flex flex-col max-w-[70%] ${bubbleAlign}`}
+                      style={{ fontFamily: '"Times New Roman", Times, serif' }}
+                    >
+                      <div
+                        className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${bubbleColors}`}
+                      >
+                        <p className="whitespace-pre-wrap">{message.content}</p>
+                      </div>
+
+                      {message.role === 'assistant' && (
+                        <button
+                          onClick={() => speakText(message.content)}
+                          className="mt-1 text-[11px] text-emerald-200 hover:text-emerald-100 hover:bg-slate-900/80 transition-colors border border-emerald-600/70 px-2 py-1 rounded-full bg-slate-950/80 font-mono"
+                          aria-label="Text to speech"
+                        >
+                          <div className="flex items-center space-x-1">
+                            <Volume2 size={12} />
+                            <span>PLAY</span>
+                          </div>
+                        </button>
+                      )}
+
+                      {message.timestamp && (
+                        <span className="text-[10px] text-emerald-300/70 mt-1 font-mono">
+                          {new Date(message.timestamp).toLocaleTimeString()}
+                        </span>
+                      )}
+                    </div>
+
+                    {isUser && (
+                      <div className="w-8 h-8 rounded-full border border-emerald-500/70 bg-emerald-700/80 flex items-center justify-center flex-shrink-0">
+                        <User size={18} className="text-emerald-50" />
+                      </div>
                     )}
                   </div>
-
-                  {message.role === 'user' && (
-                    <div className="w-8 h-8 border-2 border-black bg-white flex items-center justify-center flex-shrink-0">
-                      <User size={18} className="text-black" />
-                    </div>
-                  )}
-                </div>
-              ))}
+                );
+              })}
 
               {isLoading && (
                 <div className="flex justify-start items-center space-x-2">
-                  <div className="w-8 h-8 border-2 border-black bg-white flex items-center justify-center">
-                    <Bot size={18} className="text-black" />
+                  <div className="w-8 h-8 rounded-full border border-emerald-500/70 bg-slate-900/90 flex items-center justify-center">
+                    <Bot size={18} className="text-emerald-200" />
                   </div>
-                  <div className="bg-white border-2 border-black p-3">
+                  <div className="bg-slate-900/90 border border-emerald-700/60 rounded-2xl px-4 py-3">
                     <div className="flex space-x-2">
-                      <div className="w-2 h-2 bg-black animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-black animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-black animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      <div
+                        className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce"
+                        style={{ animationDelay: '0ms' }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce"
+                        style={{ animationDelay: '150ms' }}
+                      ></div>
+                      <div
+                        className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce"
+                        style={{ animationDelay: '300ms' }}
+                      ></div>
                     </div>
                   </div>
                 </div>
               )}
+
               <div ref={messagesEndRef} />
             </div>
 
-            <div className="p-3 bg-white border-t-4 border-black">
+            {/* INPUT AREA */}
+            <div className="p-4 bg-slate-950/80 border-t border-emerald-800/60">
               <form onSubmit={handleSubmit} className="flex items-center space-x-2">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={isListening ? ">>> LISTENING... SPEAK NOW" : "Type your message..."}
-                  className={`flex-1 p-2 border-2 border-black focus:outline-none transition-all text-sm ${
-                    isListening ? 'bg-black text-white placeholder-white font-mono' : 'bg-white text-black'
+                  placeholder={
+                    isListening
+                      ? '>>> LISTENING… speak now'
+                      : 'Share how you feel or ask for an intention...'
+                  }
+                  className={`flex-1 rounded-2xl border border-emerald-700/70 bg-slate-900/80 px-4 py-3 text-sm text-emerald-50 placeholder:text-emerald-200/60 focus:outline-none focus:ring-2 focus:ring-emerald-500/80 transition-all ${
+                    isListening ? 'ring-2 ring-emerald-400/80 font-mono' : ''
                   }`}
-                  style={{ fontFamily: isListening ? 'monospace' : '"Times New Roman", Times, serif' }}
+                  style={{
+                    fontFamily: isListening
+                      ? 'monospace'
+                      : '"Times New Roman", Times, serif',
+                  }}
                   disabled={isLoading}
                   readOnly={isListening}
                 />
+
                 <button
                   type="button"
                   onClick={isRecording ? stopRecording : startRecording}
-                  className={`p-2 border-2 border-black transition-colors ${
+                  className={`p-2 rounded-2xl border border-emerald-600/80 transition-colors ${
                     isRecording
-                      ? 'bg-black text-white animate-pulse'
-                      : 'bg-white text-black hover:opacity-60'
+                      ? 'bg-emerald-600 text-slate-950 animate-pulse'
+                      : 'bg-slate-900 text-emerald-100 hover:bg-emerald-600 hover:text-slate-950'
                   }`}
                   disabled={isLoading || continuousListening}
-                  title={continuousListening ? 'Mic is auto-managed in continuous mode' : 'Push to talk'}
+                  title={
+                    continuousListening
+                      ? 'Mic is auto-managed in continuous mode'
+                      : 'Push to talk'
+                  }
                 >
                   {isRecording ? <Square size={18} /> : <Mic size={18} />}
                 </button>
+
                 <button
                   type="submit"
-                  className="p-2 bg-black text-white border-2 border-black hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="p-2 rounded-2xl bg-emerald-500 text-slate-950 border border-emerald-400 hover:bg-emerald-400 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={!input.trim() || isLoading}
                 >
                   <Send size={18} />
