@@ -1,5 +1,4 @@
-import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import OpenAI from "openai";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -10,17 +9,17 @@ export async function POST(request: Request) {
     const { messages } = await request.json();
 
     const completion = await openai.chat.completions.create({
-      model: 'ft:gpt-4.1-nano-2025-04-14:kirk-williams:yoga-intentions-ai:Cl57h57Y,
+      // ⬇️ Put your fine-tuned model ID here
+      model: "ft:gpt-4.1-nano-2025-04-14:YOUR-MODEL-ID",
       messages,
       stream: false,
     });
 
-    return NextResponse.json(completion.choices[0].message);
+    return Response.json({
+      content: completion.choices[0].message.content,
+    });
   } catch (error) {
-    console.error('OpenAI API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to process your request' },
-      { status: 500 }
-    );
+    console.error("Error in /api/chat route:", error);
+    return new Response("Error generating completion", { status: 500 });
   }
 }
