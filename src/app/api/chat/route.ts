@@ -1,3 +1,4 @@
+// src/app/api/chat/route.ts
 import OpenAI from "openai";
 
 const openai = new OpenAI({
@@ -8,18 +9,44 @@ export async function POST(request: Request) {
   try {
     const { messages } = await request.json();
 
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("Missing OPENAI_API_KEY");
+      return new Response(
+        JSON.stringify({ error: "Server is missing API key." }),
+        { status: 500 }
+      );
+    }
+
+    if (!messages || !Array.isArray(messages)) {
+      return new Response(
+        JSON.stringify({ error: "Request body must include messages array." }),
+        { status: 400 }
+      );
+    }
+
     const completion = await openai.chat.completions.create({
-      // ⬇️ Put your fine-tuned model ID here
-      model: "ft:gpt-4.1-nano-2025-04-14:YOUR-MODEL-ID",
+      model: "ft:gpt-4.1-nano-2025-04-14:kirk-williams:yoga-intentions-ai:Cl57h57Y",
       messages,
       stream: false,
+      temperature: 0.7,
+      max_tokens: 128,
     });
 
-    return Response.json({
-      content: completion.choices[0].message.content,
+    const content = completion.choices[0]?.message?.content ?? "";
+
+    return new Response(JSON.stringify({ content }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
     });
-  } catch (error) {
-    console.error("Error in /api/chat route:", error);
-    return new Response("Error generating completion", { status: 500 });
+  } catch (err: any) {
+    console.error("Chat route error:", err);
+
+    return new Response(
+      JSON.stringify({
+        error: "Failed to generate completion",
+        details: err?.message ?? String(err),
+      }),
+      { status: 500 }
+    );
   }
 }
